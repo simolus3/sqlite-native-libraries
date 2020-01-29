@@ -1,0 +1,73 @@
+plugins {
+    id 'de.undercouch.download' version '3.4.3'
+}
+
+apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'de.undercouch.download'
+
+group = 'eu.simonbinder'
+version = '3.30.1'
+description = 'Native sqlite3 library without JNI bindings'
+
+android {
+    compileSdkVersion 29
+
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    externalNativeBuild {
+        cmake {
+            path 'cpp/CMakeLists.txt'
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+}
+
+ext {
+    sqliteDistributionUrl = 'https://sqlite.org/2019/sqlite-amalgamation-3300100.zip'
+}
+
+task downloadSqlite(type: Download) {
+    src project.sqliteDistributionUrl
+    dest 'cpp/sqlite.zip'
+}
+
+task installSqlite(dependsOn: downloadSqlite, type: Copy) {
+    from zipTree(downloadSqlite.dest).matching {
+        include '*/sqlite3.*'
+        eachFile { it.setPath(it.getName()) }
+    }
+    into 'cpp/'
+}
+
+preBuild.dependsOn installSqlite
