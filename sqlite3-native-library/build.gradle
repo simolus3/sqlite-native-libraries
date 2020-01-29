@@ -46,12 +46,47 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 }
+
+android.libraryVariants
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId project.group
+            artifactId project.name
+            version project.version
+            artifact "build/outputs/aar/${project.name}-release.aar"
+        }
+    }
+}
+
+Properties properties = new Properties()
+File localProperties = project.rootProject.file('local.properties')
+if (localProperties.exists()) {
+    properties.load(localProperties.newDataInputStream())
+}
+
+publish.dependsOn "assembleRelease"
+bintrayUpload.dependsOn "assembleRelease"
+
+bintray {
+    user = properties.getProperty('bintray.user')
+    key = properties.getProperty('bintray.apikey')
+    publications = ['maven']
+    pkg {
+        repo = 'sqlite3-native-library'
+        name = 'sqlite3-native-library'
+        userOrg = 'sbinder'
+        licenses = ['Public Domain']
+        vcsUrl = 'https://github.com/simolus3/sqlite-native-libraries.git'
+        version {
+            name = project.version
+            desc = project.description
+            released = new Date()
+        }
+    }
+}
+
 
 ext {
     sqliteDistributionUrl = 'https://sqlite.org/2019/sqlite-amalgamation-3300100.zip'
