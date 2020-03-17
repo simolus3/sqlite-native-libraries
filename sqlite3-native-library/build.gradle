@@ -8,7 +8,7 @@ apply plugin: 'com.jfrog.bintray'
 apply plugin: 'de.undercouch.download'
 
 group = 'eu.simonbinder'
-version = '3.30.1'
+version = '3.31.1'
 description = 'Native sqlite3 library without JNI bindings'
 
 android {
@@ -89,7 +89,7 @@ bintray {
 
 
 ext {
-    sqliteDistributionUrl = 'https://sqlite.org/2019/sqlite-amalgamation-3300100.zip'
+    sqliteDistributionUrl = 'https://www.sqlite.org/2020/sqlite-amalgamation-3310100.zip'
 }
 
 task downloadSqlite(type: Download) {

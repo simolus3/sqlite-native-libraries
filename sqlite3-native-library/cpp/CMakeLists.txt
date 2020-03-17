@@ -11,7 +11,7 @@ add_library(sqlite3 SHARED sqlite3.c)
 
 target_compile_definitions(sqlite3 PUBLIC
     SQLITE_DQS=0
-    SQLITE_THREADSAFE=0
+    SQLITE_THREADSAFE=2
     SQLITE_DEFAULT_MEMSTATUS=0
     SQLITE_MAX_EXPR_DEPTH=0
     SQLITE_OMIT_AUTHORIZATION
