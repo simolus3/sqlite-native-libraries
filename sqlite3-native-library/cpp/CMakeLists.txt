@@ -28,4 +28,5 @@ target_compile_definitions(sqlite3 PUBLIC
     SQLITE_HAVE_ISNAN
     SQLITE_ENABLE_FTS5
     SQLITE_ENABLE_JSON1
+    DSQLITE_ENABLE_RTREE
 )
