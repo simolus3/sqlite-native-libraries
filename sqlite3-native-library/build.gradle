@@ -4,12 +4,20 @@ plugins {
 
 apply plugin: 'com.android.library'
 apply plugin: 'maven-publish'
-apply plugin: 'com.jfrog.bintray'
-apply plugin: 'de.undercouch.download'
 
 group = 'eu.simonbinder'
-version = '3.34.0'
+version = '3.34.1'
 description = 'Native sqlite3 library without JNI bindings'
+
+repositories {
+    mavenCentral()
+    google()
+    jcenter {
+        content {
+            includeGroup('org.jetbrains.trove4j')
+        }
+    }
+}
 
 android {
     compileSdkVersion 29
@@ -44,11 +52,8 @@ android {
     }
 }
 
-dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}
+def localRepo = 'build/publications/local'
 
-android.libraryVariants
 publishing {
     publications {
         maven(MavenPublication) {
@@ -56,6 +61,13 @@ publishing {
             artifactId project.name
             version project.version
             artifact "build/outputs/aar/${project.name}-release.aar"
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'local'
+            url = file(localRepo).toURI().toURL()
         }
     }
 }
@@ -66,30 +78,24 @@ if (localProperties.exists()) {
     properties.load(localProperties.newDataInputStream())
 }
 
-publish.dependsOn "assembleRelease"
-bintrayUpload.dependsOn "assembleRelease"
-
-bintray {
-    user = properties.getProperty('bintray.user')
-    key = properties.getProperty('bintray.apikey')
-    publications = ['maven']
-    pkg {
-        repo = 'sqlite3-native-library'
-        name = 'sqlite3-native-library'
-        userOrg = 'sbinder'
-        licenses = ['Public Domain']
-        vcsUrl = 'https://github.com/simolus3/sqlite-native-libraries.git'
-        version {
-            name = project.version
-            desc = project.description
-            released = new Date()
-        }
-    }
+task fetchMavenMetadata(type: Download) {
+    def file = 'eu/simonbinder/sqlite3-native-library/maven-metadata.xml'
+    src "https://storage.googleapis.com/simon-public-euw3/maven/$file"
+    dest "$localRepo/$file"
 }
 
+task uploadPublicationToGoogleCloudStorage(type: Exec) {
+    commandLine('gsutil', 'rsync', '-r', localRepo, 'gs://simon-public-euw3/maven')
+    workingDir(project.projectDir)
+}
+
+tasks.named("publish") {
+    dependsOn("assembleRelease", "fetchMavenMetadata")
+    finalizedBy('uploadPublicationToGoogleCloudStorage')
+}
 
 ext {
-    sqliteDistributionUrl = 'https://www.sqlite.org/2020/sqlite-amalgamation-3340000.zip'
+    sqliteDistributionUrl = 'https://www.sqlite.org/2021/sqlite-amalgamation-3340100.zip'
 }
 
 task downloadSqlite(type: Download) {
