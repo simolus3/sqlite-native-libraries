@@ -1,9 +1,21 @@
+buildscript {
+    repositories {
+        repositories {
+            google()
+        }
+        dependencies {
+            classpath 'com.android.tools.build:gradle:4.1.0'
+        }
+    }
+}
+
 plugins {
     id 'de.undercouch.download' version '3.4.3'
+    id('maven-publish')
+    id('signing')
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'maven-publish'
 
 group = 'eu.simonbinder'
 version = '3.34.1'
@@ -52,7 +64,27 @@ android {
     }
 }
 
-def localRepo = 'build/publications/local'
+task androidSourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+}
+
+artifacts {
+    archives androidSourcesJar
+}
+
+def secretsFile = rootProject.file('local.properties')
+def secretProperties = new Properties()
+if (secretsFile.exists()) {
+    def reader = secretsFile.newReader()
+    secretProperties.load(reader)
+    reader.close()
+
+    secretProperties.each { key, value ->
+        if (key.startsWith("signing")) {
+            ext[key] = value
+        }
+    }
+}
 
 publishing {
     publications {
@@ -60,38 +92,59 @@ publishing {
             groupId project.group
             artifactId project.name
             version project.version
-            artifact "build/outputs/aar/${project.name}-release.aar"
+
+            artifact "$buildDir/outputs/aar/${project.name}-release.aar"
+            artifact androidSourcesJar
+
+            pom {
+                name = project.name
+                description = project.description
+                url = 'https://github.com/simolus3/sqlite-native-libraries'
+
+                developers {
+                    developer {
+                        id = 'simonbinder'
+                        name = 'Simon Binder'
+                        email = 'oss@simonbinder.eu'
+                    }
+                }
+
+                licenses {
+                    license {
+                        name = "Public Domain"
+                        url = "https://www.sqlite.org/copyright.html"
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:github.com/simolus3/sqlite-native-libraries.git'
+                    developerConnection = 'scm:git:ssh://github.com/simolus3/sqlite-native-libraries.git'
+                    url = 'https://github.com/simolus3/sqlite-native-libraries/tree/master'
+                }
+            }
         }
     }
 
     repositories {
         maven {
-            name = 'local'
-            url = file(localRepo).toURI().toURL()
+            name = 'sonatype'
+            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            credentials {
+                username secretProperties.get("ossrhUsername")
+                password secretProperties.get("ossrhPassword")
+            }
         }
     }
 }
 
-Properties properties = new Properties()
-File localProperties = project.rootProject.file('local.properties')
-if (localProperties.exists()) {
-    properties.load(localProperties.newDataInputStream())
-}
 
-task fetchMavenMetadata(type: Download) {
-    def file = 'eu/simonbinder/sqlite3-native-library/maven-metadata.xml'
-    src "https://storage.googleapis.com/simon-public-euw3/maven/$file"
-    dest "$localRepo/$file"
-}
-
-task uploadPublicationToGoogleCloudStorage(type: Exec) {
-    commandLine('gsutil', 'rsync', '-r', localRepo, 'gs://simon-public-euw3/maven')
-    workingDir(project.projectDir)
+signing {
+    useGpgCmd()
+    sign publishing.publications
 }
 
 tasks.named("publish") {
-    dependsOn("assembleRelease", "fetchMavenMetadata")
-    finalizedBy('uploadPublicationToGoogleCloudStorage')
+    dependsOn("assembleRelease", "androidSourcesJar")
 }
 
 ext {
