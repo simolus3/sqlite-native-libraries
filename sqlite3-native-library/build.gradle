@@ -10,7 +10,7 @@ buildscript {
 }
 
 plugins {
-    id 'de.undercouch.download' version '3.4.3'
+    id 'de.undercouch.download' version '4.1.1'
     id('maven-publish')
     id('signing')
 }
@@ -18,7 +18,7 @@ plugins {
 apply plugin: 'com.android.library'
 
 group = 'eu.simonbinder'
-version = '3.35.0'
+version = '3.35.4'
 description = 'Native sqlite3 library without JNI bindings'
 
 repositories {
@@ -155,7 +155,7 @@ tasks.named("publish") {
 }
 
 ext {
-    sqliteDistributionUrl = 'https://www.sqlite.org/2021/sqlite-amalgamation-3350000.zip'
+    sqliteDistributionUrl = 'https://www.sqlite.org/2021/sqlite-amalgamation-3350400.zip'
 }
 
 task downloadSqlite(type: Download) {
