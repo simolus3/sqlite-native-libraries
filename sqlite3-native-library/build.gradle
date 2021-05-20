@@ -18,7 +18,7 @@ plugins {
 apply plugin: 'com.android.library'
 
 group = 'eu.simonbinder'
-version = '3.35.4'
+version = '3.35.5'
 description = 'Native sqlite3 library without JNI bindings'
 
 repositories {
@@ -155,7 +155,7 @@ tasks.named("publish") {
 }
 
 ext {
-    sqliteDistributionUrl = 'https://www.sqlite.org/2021/sqlite-amalgamation-3350400.zip'
+    sqliteDistributionUrl = 'https://www.sqlite.org/2021/sqlite-amalgamation-3350500.zip'
 }
 
 task downloadSqlite(type: Download) {
