@@ -8,8 +8,11 @@ plugins {
     id("signing")
 }
 
+val sqliteMinor = 37
+val sqlitePatch = 2
+
 group = "eu.simonbinder"
-version = "3.37.0"
+version = "3.$sqliteMinor.$sqlitePatch"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -57,11 +60,17 @@ val secretProperties = Properties()
 
 if (secretsFile.exists()) {
     secretsFile.reader().use { secretProperties.load(it) }
+
+    secretProperties.forEach { key, value ->
+        if (key is String && key.startsWith("signing")) {
+            ext[key] = value
+        }
+    }
 }
 
 publishing {
     publications {
-        registering(MavenPublication::class) {
+        register("maven", MavenPublication::class) {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
@@ -125,7 +134,11 @@ tasks.named("publish").configure {
 }
 
 val downloadSqlite by tasks.registering(Download::class) {
-    src("https://www.sqlite.org/2021/sqlite-amalgamation-3370000.zip")
+    val downloadCode = "3" + sqliteMinor.toString().padStart(2, '0') +
+            sqlitePatch.toString().padStart(2, '0') +
+            "00"
+
+    src("https://www.sqlite.org/2022/sqlite-amalgamation-$downloadCode.zip")
     dest("cpp/sqlite.zip")
 }
 
@@ -136,6 +149,8 @@ val installSqlite by tasks.registering(Copy::class) {
         include("*/sqlite3.*")
         eachFile { path = name }
     })
+
+    into("cpp/")
 }
 
 tasks.named("preBuild") {
