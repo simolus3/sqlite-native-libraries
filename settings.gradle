@@ -1,2 +1,0 @@
-include ':sqlite3-native-library'
-rootProject.name='sqlite3-native-libary'
