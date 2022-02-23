@@ -8,8 +8,8 @@ plugins {
     id("signing")
 }
 
-val sqliteMinor = 37
-val sqlitePatch = 2
+val sqliteMinor = 38
+val sqlitePatch = 0
 
 group = "eu.simonbinder"
 version = "3.$sqliteMinor.$sqlitePatch"
