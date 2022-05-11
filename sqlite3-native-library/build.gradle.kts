@@ -2,14 +2,14 @@ import java.util.Properties
 import de.undercouch.gradle.tasks.download.Download
 
 plugins {
-    id("com.android.library") version "7.0.1"
+    id("com.android.library") version "7.2.0"
     id("de.undercouch.download") version "4.1.2"
     id("maven-publish")
     id("signing")
 }
 
 val sqliteMinor = 38
-val sqlitePatch = 3
+val sqlitePatch = 5
 
 group = "eu.simonbinder"
 version = "3.$sqliteMinor.$sqlitePatch"
@@ -21,9 +21,9 @@ repositories {
 }
 
 android {
-    compileSdk = 30
-    buildToolsVersion = "30.0.3"
-    ndkVersion = "20.1.5948944"
+    compileSdk = 32
+    buildToolsVersion = "32.0.0"
+    ndkVersion = "24.0.8215888"
 
     defaultConfig {
         minSdk = 16
