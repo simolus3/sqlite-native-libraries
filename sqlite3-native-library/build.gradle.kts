@@ -1,5 +1,4 @@
 import java.util.Properties
-import de.undercouch.gradle.tasks.download.Download
 
 plugins {
     id("com.android.library") version "7.2.0"
@@ -9,10 +8,12 @@ plugins {
 }
 
 val sqliteMinor = 39
-val sqlitePatch = 0
+val sqlitePatch = 2
 
-group = "eu.simonbinder"
+group = "me.movenext"
+
 version = "3.$sqliteMinor.$sqlitePatch"
+
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -28,29 +29,18 @@ android {
     defaultConfig {
         minSdk = 16
 
-        ndk {
-            abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-        }
+        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64") }
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-        }
-    }
+    buildTypes { release { isMinifyEnabled = false } }
 
-    externalNativeBuild {
-        cmake {
-            path = file("cpp/CMakeLists.txt")
-        }
-    }
+    externalNativeBuild { cmake { path = file("cpp/CMakeLists.txt") } }
 
-    libraryVariants.forEach {
-        it.generateBuildConfigProvider.configure { enabled = false }
-    }
+    libraryVariants.forEach { it.generateBuildConfigProvider.configure { enabled = false } }
 }
 
-val androidSourcesJar by tasks.registering(Jar::class) {
+val androidSourcesJar by
+        tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
     from(android.sourceSets.getByName("main").java.srcDirs)
 }
@@ -124,35 +114,9 @@ publishing {
     }
 }
 
-signing {
-    useGpgCmd()
-    sign(publishing.publications)
-}
+// signing {
+//     useGpgCmd()
+//     sign(publishing.publications)
+// }
 
-tasks.named("publish").configure {
-    dependsOn("assembleRelease", androidSourcesJar)
-}
-
-val downloadSqlite by tasks.registering(Download::class) {
-    val downloadCode = "3" + sqliteMinor.toString().padStart(2, '0') +
-            sqlitePatch.toString().padStart(2, '0') +
-            "00"
-
-    src("https://www.sqlite.org/2022/sqlite-amalgamation-$downloadCode.zip")
-    dest("cpp/sqlite.zip")
-}
-
-val installSqlite by tasks.registering(Copy::class) {
-    dependsOn(downloadSqlite)
-
-    from(zipTree(downloadSqlite.get().dest).matching {
-        include("*/sqlite3.*")
-        eachFile { path = name }
-    })
-
-    into("cpp/")
-}
-
-tasks.named("preBuild") {
-    dependsOn(installSqlite)
-}
+tasks.named("publish").configure { dependsOn("assembleRelease", androidSourcesJar) }

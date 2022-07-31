@@ -1,13 +1,33 @@
-cmake_minimum_required(VERSION 3.4.1)
+cmake_minimum_required(VERSION 3.14)
 project(
     sqlite3_native_library
     VERSION 3
     LANGUAGES C
 )
 
+include(FetchContent)
+
+FetchContent_Declare(
+  sqlite3
+  URL https://www.sqlite.org/2022/sqlite-autoconf-3390200.tar.gz
+)
+FetchContent_MakeAvailable(sqlite3)
+
+FetchContent_Declare(
+  spellfix1
+  URL https://raw.githubusercontent.com/sqlite/sqlite/branch-3.39/ext/misc/spellfix.c
+  DOWNLOAD_NO_EXTRACT TRUE
+)
+FetchContent_MakeAvailable(spellfix1)
+
 set(CMAKE_C_FLAGS "-O3")
 
-add_library(sqlite3 SHARED sqlite3.c)
+add_library(sqlite3 SHARED 
+    "${sqlite3_SOURCE_DIR}/sqlite3.c"
+    "${spellfix1_SOURCE_DIR}/spellfix.c"
+)
+
+target_include_directories(sqlite3 PRIVATE ${sqlite3_SOURCE_DIR})
 
 target_compile_definitions(sqlite3 PUBLIC
     SQLITE_DQS=0
