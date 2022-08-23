@@ -10,7 +10,7 @@ plugins {
 val sqliteMinor = 39
 val sqlitePatch = 2
 
-group = "me.movenext"
+group = "eu.simonbinder"
 
 version = "3.$sqliteMinor.$sqlitePatch"
 
@@ -41,9 +41,9 @@ android {
 
 val androidSourcesJar by
         tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(android.sourceSets.getByName("main").java.srcDirs)
-}
+            archiveClassifier.set("sources")
+            from(android.sourceSets.getByName("main").java.srcDirs)
+        }
 
 val secretsFile = rootProject.file("local.properties")
 val secretProperties = Properties()
@@ -90,7 +90,9 @@ publishing {
 
                 scm {
                     connection.set("scm:git:github.com/simolus3/sqlite-native-libraries.git")
-                    developerConnection.set("scm:git:ssh://github.com/simolus3/sqlite-native-libraries.git")
+                    developerConnection.set(
+                            "scm:git:ssh://github.com/simolus3/sqlite-native-libraries.git"
+                    )
                     url.set("https://github.com/simolus3/sqlite-native-libraries/tree/master")
                 }
             }
