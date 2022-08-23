@@ -9,7 +9,7 @@ plugins {
 }
 
 val sqliteMinor = 39
-val sqlitePatch = 0
+val sqlitePatch = 2
 
 group = "eu.simonbinder"
 version = "3.$sqliteMinor.$sqlitePatch"
