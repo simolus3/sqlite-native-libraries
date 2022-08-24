@@ -1,9 +1,7 @@
 import java.util.Properties
-import de.undercouch.gradle.tasks.download.Download
 
 plugins {
     id("com.android.library") version "7.2.0"
-    id("de.undercouch.download") version "4.1.2"
     id("maven-publish")
     id("signing")
 }
@@ -131,28 +129,4 @@ signing {
 
 tasks.named("publish").configure {
     dependsOn("assembleRelease", androidSourcesJar)
-}
-
-val downloadSqlite by tasks.registering(Download::class) {
-    val downloadCode = "3" + sqliteMinor.toString().padStart(2, '0') +
-            sqlitePatch.toString().padStart(2, '0') +
-            "00"
-
-    src("https://www.sqlite.org/2022/sqlite-amalgamation-$downloadCode.zip")
-    dest("cpp/sqlite.zip")
-}
-
-val installSqlite by tasks.registering(Copy::class) {
-    dependsOn(downloadSqlite)
-
-    from(zipTree(downloadSqlite.get().dest).matching {
-        include("*/sqlite3.*")
-        eachFile { path = name }
-    })
-
-    into("cpp/")
-}
-
-tasks.named("preBuild") {
-    dependsOn(installSqlite)
 }
