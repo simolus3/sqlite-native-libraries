@@ -29,14 +29,26 @@ android {
     defaultConfig {
         minSdk = 16
 
-        ndk { abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64") }
+        ndk {
+            abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+        }
     }
 
-    buildTypes { release { isMinifyEnabled = false } }
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+        }
+    }
 
-    externalNativeBuild { cmake { path = file("cpp/CMakeLists.txt") } }
+    externalNativeBuild {
+        cmake {
+            path = file("cpp/CMakeLists.txt")
+        }
+    }
 
-    libraryVariants.forEach { it.generateBuildConfigProvider.configure { enabled = false } }
+    libraryVariants.forEach {
+        it.generateBuildConfigProvider.configure { enabled = false }
+    }
 }
 
 val androidSourcesJar by
@@ -116,9 +128,11 @@ publishing {
     }
 }
 
-// signing {
-//     useGpgCmd()
-//     sign(publishing.publications)
-// }
+signing {
+    useGpgCmd()
+    sign(publishing.publications)
+}
 
-tasks.named("publish").configure { dependsOn("assembleRelease", androidSourcesJar) }
+tasks.named("publish").configure {
+    dependsOn("assembleRelease", androidSourcesJar)
+}
