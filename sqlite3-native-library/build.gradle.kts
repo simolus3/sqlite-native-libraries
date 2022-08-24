@@ -2,7 +2,6 @@ import java.util.Properties
 
 plugins {
     id("com.android.library") version "7.2.0"
-    id("de.undercouch.download") version "4.1.2"
     id("maven-publish")
     id("signing")
 }
