@@ -6,11 +6,8 @@ plugins {
     id("signing")
 }
 
-val sqliteMinor = 39
-val sqlitePatch = 3
-
 group = "eu.simonbinder"
-version = "3.$sqliteMinor.$sqlitePatch"
+version = "3.39.3+1"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -21,7 +18,7 @@ repositories {
 android {
     compileSdk = 32
     buildToolsVersion = "32.0.0"
-    ndkVersion = "24.0.8215888"
+    ndkVersion = "25.1.8937393"
 
     defaultConfig {
         minSdk = 16
