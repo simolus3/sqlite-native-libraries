@@ -1,13 +1,13 @@
 import java.util.Properties
 
 plugins {
-    id("com.android.library") version "7.2.0"
+    id("com.android.library") version "7.3.0"
     id("maven-publish")
     id("signing")
 }
 
 group = "eu.simonbinder"
-version = "3.39.4"
+version = "3.39.4+1"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -16,9 +16,11 @@ repositories {
 }
 
 android {
-    compileSdk = 32
-    buildToolsVersion = "32.0.0"
+    compileSdk = 33
+    buildToolsVersion = "33.0.0"
     ndkVersion = "25.1.8937393"
+
+    namespace = "eu.simonbinder.sqlite3_native_library"
 
     defaultConfig {
         minSdk = 16
@@ -40,14 +42,11 @@ android {
         }
     }
 
-    libraryVariants.forEach {
-        it.generateBuildConfigProvider.configure { enabled = false }
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
     }
-}
-
-val androidSourcesJar by tasks.registering(Jar::class) {
-    archiveClassifier.set("sources")
-    from(android.sourceSets.getByName("main").java.srcDirs)
 }
 
 val secretsFile = rootProject.file("local.properties")
@@ -65,13 +64,14 @@ if (secretsFile.exists()) {
 
 publishing {
     publications {
-        register("maven", MavenPublication::class) {
+        register<MavenPublication>("maven") {
             groupId = project.group.toString()
             artifactId = project.name
             version = project.version.toString()
 
-            artifact("$buildDir/outputs/aar/${project.name}-release.aar")
-            artifact(androidSourcesJar)
+            afterEvaluate {
+                from(components["release"])
+            }
 
             pom {
                 name.set(project.name)
@@ -125,5 +125,5 @@ signing {
 }
 
 tasks.named("publish").configure {
-    dependsOn("assembleRelease", androidSourcesJar)
+    dependsOn("assembleRelease")
 }
