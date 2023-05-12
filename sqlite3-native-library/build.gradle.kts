@@ -1,13 +1,13 @@
 import java.util.Properties
 
 plugins {
-    id("com.android.library") version "7.4.1"
+    id("com.android.library") version "8.0.1"
     id("maven-publish")
     id("signing")
 }
 
 group = "eu.simonbinder"
-version = "3.41.0"
+version = "3.41.2"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -17,8 +17,7 @@ repositories {
 
 android {
     compileSdk = 33
-    buildToolsVersion = "33.0.0"
-    ndkVersion = "25.1.8937393"
+    ndkVersion = "25.2.9519653"
 
     namespace = "eu.simonbinder.sqlite3_native_library"
 
@@ -124,6 +123,6 @@ signing {
     sign(publishing.publications)
 }
 
-tasks.named("publish").configure {
+tasks.withType<AbstractPublishToMaven>() {
     dependsOn("assembleRelease")
 }
