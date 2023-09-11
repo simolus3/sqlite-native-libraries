@@ -9,7 +9,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   sqlite3
-  URL https://sqlite.org/2023/sqlite-autoconf-3430000.tar.gz
+  URL https://sqlite.org/2023/sqlite-autoconf-3430100.tar.gz
 )
 FetchContent_MakeAvailable(sqlite3)
 
@@ -28,8 +28,6 @@ target_compile_definitions(sqlite3 PUBLIC
     SQLITE_OMIT_AUTHORIZATION
     SQLITE_OMIT_DECLTYPE
     SQLITE_OMIT_DEPRECATED
-    SQLITE_OMIT_GET_TABLE
-    SQLITE_OMIT_LOAD_EXTENSION
     SQLITE_OMIT_PROGRESS_CALLBACK
     SQLITE_OMIT_SHARED_CACHE
     SQLITE_OMIT_TCL_VARIABLE
