@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "eu.simonbinder"
-version = "3.45.3"
+version = "3.45.3+1"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -22,7 +22,7 @@ android {
     namespace = "eu.simonbinder.sqlite3_native_library"
 
     defaultConfig {
-        minSdk = 21
+        minSdk = 19
 
         ndk {
             abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
