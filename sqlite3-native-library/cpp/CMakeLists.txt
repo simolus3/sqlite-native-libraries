@@ -9,7 +9,7 @@ include(FetchContent)
 
 FetchContent_Declare(
   sqlite3
-  URL https://sqlite.org/2024/sqlite-autoconf-3450100.tar.gz
+  URL https://sqlite.org/2024/sqlite-autoconf-3450300.tar.gz
 )
 FetchContent_MakeAvailable(sqlite3)
 
