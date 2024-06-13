@@ -19,6 +19,7 @@ add_library(sqlite3 SHARED "${sqlite3_SOURCE_DIR}/sqlite3.c")
 target_include_directories(sqlite3 PRIVATE ${sqlite3_SOURCE_DIR})
 
 target_compile_definitions(sqlite3 PUBLIC
+    SQLITE_ENABLE_DBSTAT_VTAB
     SQLITE_ENABLE_FTS5
     SQLITE_ENABLE_RTREE
     SQLITE_DQS=0
