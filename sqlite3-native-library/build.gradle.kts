@@ -1,13 +1,13 @@
 import java.util.Properties
 
 plugins {
-    id("com.android.library") version "8.3.0"
+    id("com.android.library") version "8.7.1"
     id("maven-publish")
     id("signing")
 }
 
 group = "eu.simonbinder"
-version = "3.46.1"
+version = "3.46.1+1"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -17,7 +17,7 @@ repositories {
 
 android {
     compileSdk = 34
-    ndkVersion = "26.3.11579264"
+    ndkVersion = "27.2.12479018"
 
     namespace = "eu.simonbinder.sqlite3_native_library"
 
@@ -26,6 +26,12 @@ android {
 
         ndk {
             abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+        }
+
+        externalNativeBuild {
+            cmake {
+                arguments += listOf("-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
+            }
         }
     }
 
