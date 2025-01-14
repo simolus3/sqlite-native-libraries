@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "eu.simonbinder"
-version = "3.47.2"
+version = "3.48.0"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
