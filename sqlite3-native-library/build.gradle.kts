@@ -1,13 +1,13 @@
 import java.util.Properties
 
 plugins {
-    id("com.android.library") version "8.7.1"
+    id("com.android.library") version "8.7.3"
     id("maven-publish")
     id("signing")
 }
 
 group = "eu.simonbinder"
-version = "3.49.0"
+version = "3.49.1"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
