@@ -1,4 +1,14 @@
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpRequest.BodyPublisher
+import java.net.http.HttpRequest.BodyPublishers
+import java.net.http.HttpResponse.BodyHandlers
+import java.nio.file.Path
+import java.util.Base64
 import java.util.Properties
+import java.util.UUID
+import kotlin.io.path.name
 
 plugins {
     id("com.android.library") version "8.7.3"
@@ -7,7 +17,7 @@ plugins {
 }
 
 group = "eu.simonbinder"
-version = "3.49.1+1"
+version = "3.49.2"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -15,8 +25,10 @@ repositories {
     google()
 }
 
+val localRepo = uri("build/here/")
+
 android {
-    compileSdk = 34
+    compileSdk = 35
     ndkVersion = "27.2.12479018"
 
     namespace = "eu.simonbinder.sqlite3_native_library"
@@ -109,17 +121,8 @@ publishing {
 
     repositories {
         maven {
-            name = "sonatype"
-            url = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = secretProperties.getProperty("ossrhUsername")
-                password = secretProperties.getProperty("ossrhPassword")
-            }
-        }
-
-        maven {
             name = "here"
-            url = uri("build/here/")
+            url = localRepo
         }
     }
 }
@@ -129,6 +132,83 @@ signing {
     sign(publishing.publications)
 }
 
-tasks.withType<AbstractPublishToMaven>() {
+
+abstract class PublishToCentral: DefaultTask() {
+    @get:Input
+    abstract val username: Property<String>
+
+    @get:Input
+    abstract val password: Property<String>
+
+    @get:InputFile
+    abstract val file: RegularFileProperty
+
+    @TaskAction
+    fun execute() {
+        // Stolen from https://github.com/yananhub/flying-gradle-plugin/blob/main/maven-central-publish/src/main/java/tech/yanand/gradle/mavenpublish/CentralPortalService.java,
+        // the plugin unfortunately doesn't work with the configuration cache.
+        val client = HttpClient.newHttpClient()
+        val uuid = UUID.randomUUID().toString().replace("-", "")
+
+        val publisher = publishFile(uuid, file.get().asFile.toPath())
+        val token = Base64.getEncoder().encodeToString(buildString {
+            append(username.get())
+            append(':')
+            append(password.get())
+        }.encodeToByteArray())
+        val request = HttpRequest.newBuilder(URI.create(PUBLISHING_URL))
+            .header("Authorization", "Bearer $token")
+            .header("Content-Type", "multipart/form-data; boundary=$uuid")
+            .POST(publisher)
+            .build()
+
+        val response = client.send(request, BodyHandlers.ofString())
+        if (response.statusCode() != 201) {
+            error("Expected 201 status code, got ${response.statusCode()}: ${response.body()}")
+        }
+
+        client.close()
+    }
+
+    private companion object {
+        const val CRLF = "\r\n"
+        const val PUBLISHING_URL = "https://central.sonatype.com/api/v1/publisher/upload?publishingType=USER_MANAGED"
+
+        fun publishFile(boundary: String, file: Path): BodyPublisher {
+            val partMeta = buildString {
+                append("$CRLF--$boundary$CRLF")
+
+                append("Content-Disposition: form-data; name=\"bundle\"; filename=\"")
+                append(file.name)
+                append("\"")
+                append(CRLF)
+
+                append("Content-Type: application/octet-stream")
+                append(CRLF)
+                append(CRLF)
+            }
+
+            return BodyPublishers.concat(
+                BodyPublishers.ofString(partMeta),
+                BodyPublishers.ofFile(file),
+                BodyPublishers.ofString("$CRLF--$boundary--")
+            )
+        }
+    }
+}
+
+val zipPublication by tasks.registering(Zip::class) {
+    dependsOn(tasks.named("publishAllPublicationsToHereRepository"))
+    from(localRepo)
+}
+
+val publishToMavenCentral by tasks.registering(PublishToCentral::class) {
+    username.set(secretProperties.getProperty("sonatypeUser"))
+    password.set(secretProperties.getProperty("sonatypePassword"))
+
+    file.set(zipPublication.flatMap { it.archiveFile })
+}
+
+tasks.withType<AbstractPublishToMaven> {
     dependsOn("assembleRelease")
 }
