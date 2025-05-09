@@ -1,19 +1,22 @@
+import com.github.mizosoft.methanol.MediaType
+import com.github.mizosoft.methanol.MultipartBodyPublisher
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest
-import java.net.http.HttpRequest.BodyPublisher
-import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse.BodyHandlers
-import java.nio.file.Path
 import java.util.Base64
 import java.util.Properties
-import java.util.UUID
-import kotlin.io.path.name
 
 plugins {
     id("com.android.library") version "8.7.3"
     id("maven-publish")
     id("signing")
+}
+
+buildscript {
+    dependencies {
+        classpath("com.github.mizosoft.methanol:methanol:1.8.2")
+    }
 }
 
 group = "eu.simonbinder"
@@ -148,9 +151,10 @@ abstract class PublishToCentral: DefaultTask() {
         // Stolen from https://github.com/yananhub/flying-gradle-plugin/blob/main/maven-central-publish/src/main/java/tech/yanand/gradle/mavenpublish/CentralPortalService.java,
         // the plugin unfortunately doesn't work with the configuration cache.
         val client = HttpClient.newHttpClient()
-        val uuid = UUID.randomUUID().toString().replace("-", "")
+        val body = MultipartBodyPublisher.newBuilder()
+            .filePart("bundle", file.get().asFile.toPath(), MediaType.APPLICATION_OCTET_STREAM)
+            .build()
 
-        val publisher = publishFile(uuid, file.get().asFile.toPath())
         val token = Base64.getEncoder().encodeToString(buildString {
             append(username.get())
             append(':')
@@ -158,8 +162,8 @@ abstract class PublishToCentral: DefaultTask() {
         }.encodeToByteArray())
         val request = HttpRequest.newBuilder(URI.create(PUBLISHING_URL))
             .header("Authorization", "Bearer $token")
-            .header("Content-Type", "multipart/form-data; boundary=$uuid")
-            .POST(publisher)
+            .header("Content-Type", "multipart/form-data; boundary=${body.boundary()}")
+            .POST(body)
             .build()
 
         val response = client.send(request, BodyHandlers.ofString())
@@ -171,29 +175,7 @@ abstract class PublishToCentral: DefaultTask() {
     }
 
     private companion object {
-        const val CRLF = "\r\n"
         const val PUBLISHING_URL = "https://central.sonatype.com/api/v1/publisher/upload?publishingType=USER_MANAGED"
-
-        fun publishFile(boundary: String, file: Path): BodyPublisher {
-            val partMeta = buildString {
-                append("$CRLF--$boundary$CRLF")
-
-                append("Content-Disposition: form-data; name=\"bundle\"; filename=\"")
-                append(file.name)
-                append("\"")
-                append(CRLF)
-
-                append("Content-Type: application/octet-stream")
-                append(CRLF)
-                append(CRLF)
-            }
-
-            return BodyPublishers.concat(
-                BodyPublishers.ofString(partMeta),
-                BodyPublishers.ofFile(file),
-                BodyPublishers.ofString("$CRLF--$boundary--")
-            )
-        }
     }
 }
 
