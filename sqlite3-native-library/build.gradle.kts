@@ -20,7 +20,7 @@ buildscript {
 }
 
 group = "eu.simonbinder"
-version = "3.49.2"
+version = "3.50.0"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -185,6 +185,8 @@ val zipPublication by tasks.registering(Zip::class) {
 }
 
 val publishToMavenCentral by tasks.registering(PublishToCentral::class) {
+    group = "publishing"
+
     username.set(secretProperties.getProperty("sonatypeUser"))
     password.set(secretProperties.getProperty("sonatypePassword"))
 
