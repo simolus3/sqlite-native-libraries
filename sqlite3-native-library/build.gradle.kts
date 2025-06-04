@@ -20,7 +20,7 @@ buildscript {
 }
 
 group = "eu.simonbinder"
-version = "3.50.0"
+version = "3.50.0+1"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -40,7 +40,7 @@ android {
         minSdk = 19
 
         ndk {
-            abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64")
         }
 
         externalNativeBuild {
