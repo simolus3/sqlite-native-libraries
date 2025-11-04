@@ -8,19 +8,19 @@ import java.util.Base64
 import java.util.Properties
 
 plugins {
-    id("com.android.library") version "8.12.0"
+    id("com.android.library") version "8.13.0"
     id("maven-publish")
     id("signing")
 }
 
 buildscript {
     dependencies {
-        classpath("com.github.mizosoft.methanol:methanol:1.8.2")
+        classpath("com.github.mizosoft.methanol:methanol:1.8.4")
     }
 }
 
 group = "eu.simonbinder"
-version = "3.50.4"
+version = "3.51.0"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
