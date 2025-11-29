@@ -8,7 +8,7 @@ import java.util.Base64
 import java.util.Properties
 
 plugins {
-    id("com.android.library") version "8.13.0"
+    id("com.android.library") version "8.13.1"
     id("maven-publish")
     id("signing")
 }
@@ -20,7 +20,7 @@ buildscript {
 }
 
 group = "eu.simonbinder"
-version = "3.51.0"
+version = "3.51.1"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -31,7 +31,7 @@ repositories {
 val localRepo = uri("build/here/")
 
 android {
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "27.2.12479018"
 
     namespace = "eu.simonbinder.sqlite3_native_library"
