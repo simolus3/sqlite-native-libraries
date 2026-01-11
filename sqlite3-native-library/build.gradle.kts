@@ -8,19 +8,19 @@ import java.util.Base64
 import java.util.Properties
 
 plugins {
-    id("com.android.library") version "8.13.1"
+    id("com.android.library") version "8.13.2"
     id("maven-publish")
     id("signing")
 }
 
 buildscript {
     dependencies {
-        classpath("com.github.mizosoft.methanol:methanol:1.8.4")
+        classpath("com.github.mizosoft.methanol:methanol:1.9.0")
     }
 }
 
 group = "eu.simonbinder"
-version = "3.51.1"
+version = "3.51.2"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
@@ -32,7 +32,7 @@ val localRepo = uri("build/here/")
 
 android {
     compileSdk = 36
-    ndkVersion = "27.2.12479018"
+    ndkVersion = "29.0.14206865"
 
     namespace = "eu.simonbinder.sqlite3_native_library"
 
@@ -41,12 +41,6 @@ android {
 
         ndk {
             abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64")
-        }
-
-        externalNativeBuild {
-            cmake {
-                arguments += listOf("-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON")
-            }
         }
     }
 
