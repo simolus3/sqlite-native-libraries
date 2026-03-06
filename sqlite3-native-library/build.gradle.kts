@@ -20,7 +20,7 @@ buildscript {
 }
 
 group = "eu.simonbinder"
-version = "3.51.2"
+version = "3.52.0"
 description = "Native sqlite3 library without JNI bindings"
 
 repositories {
